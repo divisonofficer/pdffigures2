@@ -4,10 +4,10 @@ import time
 import stat
 from datetime import datetime
 
-# Base directory where the PDFs are located
+# Set the base directory where the source PDFs are located.
 base_pdf_dir = "/bigdata/preston/data/pdfs"
 
-# Base output directory where the processed files will be stored
+# Set the base directory where the processed output files will be saved.
 output_base = "/bigdata/preston/output"
 
 # Define batch size
@@ -63,5 +63,6 @@ def process_sources_and_categories(base_pdf_dir, output_base, batch_size):
         print("Waiting for new files...")
         time.sleep(60)  # Adjust the sleep time as necessary
 
+# When the script is run, process the categories and sources.
 if __name__ == "__main__":
     process_sources_and_categories(base_pdf_dir, output_base, batch_size)
