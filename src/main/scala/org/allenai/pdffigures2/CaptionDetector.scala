@@ -221,47 +221,48 @@ object CaptionDetector extends Logging {
     var removedAny = true
     // Keep filtering candidates until we have no duplicates for each Figure/Table
     // mentioned in the document, or can't find anything else to prune
-    while (removedAny && groupedById.values.exists(_.size > 1)) {
-      val filterToUse = filters.find { filter =>
-        val filterRemovesAny = groupedById.exists {
-          case (_, candidatesForId) => candidatesForId.exists(!filter.accept(_))
-        }
-        val filterRemovesGroup = groupedById.exists {
-          case (_, candidatesForId) => candidatesForId.forall(!filter.accept(_))
-        }
-        filterRemovesAny && !filterRemovesGroup
-      }
-      if (filterToUse.nonEmpty) {
-        groupedById = groupedById.map {
-          case (figId, candidatesForId) => (figId, candidatesForId.filter(filterToUse.get.accept))
-        }
-        logger.debug(
-          s"Applied filter ${filterToUse.get.name}, " +
-            s"${groupedById.values.map(_.size).sum} remaining"
-        )
-      } else {
-        // No filters applied, as a last resort try use PDFBox's paragraph deliminations to
-        // disambiguate. This is slightly error-prone due to paragraph chunking errors but better
-        // than nothing. If even that does not work give up
-        removedAny = false
-        groupedById = groupedById.map {
-          case (figureId, candidatesForId) =>
-            val filtered = candidatesForId.filter(_.paragraphStart)
-            if (filtered.nonEmpty) {
-              if (filtered.size < candidatesForId.size) removedAny = true
-              (figureId, filtered)
-            } else {
-              (figureId, candidatesForId)
-            }
-        }
-        if (!removedAny) {
-          logger.debug(
-            s"Filtered for paragraph starts, " +
-              s"${groupedById.values.map(_.size).sum} remaining"
-          )
-        }
-      }
-    }
+    
+    // while (removedAny && groupedById.values.exists(_.size > 1)) {
+    //   val filterToUse = filters.find { filter =>
+    //     val filterRemovesAny = groupedById.exists {
+    //       case (_, candidatesForId) => candidatesForId.exists(!filter.accept(_))
+    //     }
+    //     val filterRemovesGroup = groupedById.exists {
+    //       case (_, candidatesForId) => candidatesForId.forall(!filter.accept(_))
+    //     }
+    //     filterRemovesAny && !filterRemovesGroup
+    //   }
+    //   if (filterToUse.nonEmpty) {
+    //     groupedById = groupedById.map {
+    //       case (figId, candidatesForId) => (figId, candidatesForId.filter(filterToUse.get.accept))
+    //     }
+    //     logger.debug(
+    //       s"Applied filter ${filterToUse.get.name}, " +
+    //         s"${groupedById.values.map(_.size).sum} remaining"
+    //     )
+    //   } else {
+    //     // No filters applied, as a last resort try use PDFBox's paragraph deliminations to
+    //     // disambiguate. This is slightly error-prone due to paragraph chunking errors but better
+    //     // than nothing. If even that does not work give up
+    //     removedAny = false
+    //     groupedById = groupedById.map {
+    //       case (figureId, candidatesForId) =>
+    //         val filtered = candidatesForId.filter(_.paragraphStart)
+    //         if (filtered.nonEmpty) {
+    //           if (filtered.size < candidatesForId.size) removedAny = true
+    //           (figureId, filtered)
+    //         } else {
+    //           (figureId, candidatesForId)
+    //         }
+    //     }
+    //     if (!removedAny) {
+    //       logger.debug(
+    //         s"Filtered for paragraph starts, " +
+    //           s"${groupedById.values.map(_.size).sum} remaining"
+    //       )
+    //     }
+    //   }
+    // }
 
     // Caption groups with 4+ candidates or over 2 candidates on any page are dropped
     val filteredCaptionStarts = groupedById.filter {

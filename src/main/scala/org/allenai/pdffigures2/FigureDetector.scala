@@ -583,7 +583,7 @@ object FigureDetector {
         .maxBy(_._1)
 
       val (goodProps, badProps) = bestConfiguration._2.partition(_._2.isDefined)
-      val figures = goodProps.map {
+      val figures = bestConfiguration._2.map {
         case (proposal, _) =>
           val imageText = page.otherText.flatMap(
             p =>
